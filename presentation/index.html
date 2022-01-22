@@ -64,9 +64,7 @@
         <section>
           <h3>Pojďme do toho!</h3>
           <pre><code data-trim class="language-bash">
-            git clone ssh://git@192.168.x.y/workshop.git
-            cd workshop   # vstoupit do adresáře
-            ls / dir      # vypsat obsah adresáře
+            git clone ssh://git@192.168.x.y/home/git/workshop.git
             git pull      # synchronizace ze vzdáleného repo
 
             # nastavení základní identifikace uživatele
@@ -157,9 +155,10 @@
           <section>
             <h3>Merge conflict</h3>
             <pre><code data-trim class="language-bash">
+              git branch  # v jakém branch jsem?
               # upravte obsah souboru test.txt
-              echo "TEST2" >> test.txt
-              git add . && git commit -m "update" && git push
+              echo "TEST3\nposlední test" > test.txt
+              git add . && git commit -m "update"
               git switch master
               git merge feature/miroslavh/RTCD-3
             </code></pre>
@@ -167,12 +166,22 @@
           <section>
             <h3>Merge conflict</h3>
             <pre><code data-trim class="language-bash">
-            DOPLNIT
+              # konflikt, který git nedokáže automaticky vyřešit
+              <<<<<<< HEAD
+              TEST
+              Další test
+              třetí test
+              =======
+              TEST3
+              poslední test
+              >>>>>>> feature/miroslavh/merge-conflict
             </code></pre>
           </section>
           <section>
             <h3>Specialitky</h3>
             <pre><code data-trim class="language-bash">
+              git branch -D feature/miroslavh/RTCD-3
+              git tag v1.0.0  # přidá tag/label v1.0.0
               git stash list  # prehled stash změn
               git stash apply # aplikace stash
               git cherry-pick hash  # aplikace commitu z jiného branch
@@ -204,14 +213,48 @@
               <li>jsou shell skritpy, které jsou spouštěné při nějaké akci s gitem</li>
               <li>client side (pre-commit, pre-push, post-merge</li>
               <li>jejich pozitiva, přebírá hlavně CI</li>
-              <li>server side (update, pre-receive)</li>
-              <li>pro uživatele nejsou zajímavé</li>
+              <li>server side (update, pre-receive), pro uživatele nejsou zajímavé</li>
+              <li><code>.git/hook</code> zůstává lokální a nesynchronizuje se se vzdáleným repo</li>
             </ul>
           </section>
           <section>
             <h3>Git pre-commit</h3>
+            <ul>
+              <li>změňte hodnotu testu z 21 na 10</li>
+            </ul>
+            <pre><code data-trim class="language-python" data-line-numbers="10">
+              import unittest
+              from random import randint
+
+              def generate_num():
+                  return randint(10, 20)
+
+              class basicTest(unittest.TestCase):
+                  def test(self):
+                      self.assertGreater(generate_num(), 9)
+                      self.assertLess(generate_num(),21)
+            </code></pre>
+            <ul>
+              <li>nakopírujte pre-commit do <code>.git/hook</code> a nastavte spustitelný flag</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Git pre-commit failed pre-commit hook</h3>
             <pre><code data-trim class="language-bash">
-            DOPLNIT
+              $ git add . && git commit -m "Failing test"
+              F
+              ======================================================================
+              FAIL: test (src.dummy.basicTest)
+              ----------------------------------------------------------------------
+              Traceback (most recent call last):
+                File "/tmp/workshop/src/dummy.py", line 10, in test
+                  self.assertLess(generate_num(),10)
+              AssertionError: 19 not less than 10
+
+              ----------------------------------------------------------------------
+              Ran 1 test in 0.000s
+
+              FAILED (failures=1)
             </code></pre>
           </section>
         </section>
