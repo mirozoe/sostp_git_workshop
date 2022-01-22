@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>GIT Workshop</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+      <div class="slides">
+  			<section data-markdown>
+          <textarea data-template>
+            # GIT Workshop
+            ### Lehký úvod do práce s gitem
+            Miroslav Hlávka
+            ---
+            ### Proč GIT
+            - version control systém
+            - určený pro teamovou spolupráci
+            - repozitář je uchováván lokálně (.git)
+            - velmi robustní/komplexní
+            - nejen pro uchování software kódu, ale i GitOps (Terraform)
+            - velmi běžně používán jako zdroj pro CI/CD
+          </textarea>
+        </section>
+        <section>
+          <section>
+            <h3>Instalace GITu</h3>
+            <p>Windows </p>
+            <p><a href="https://git-scm.com/download/win">https://git-scm.com/download/win</a></>
+            <p>Linux </p>
+            <pre><code data-trim data-noescape>
+              apt install git
+              yum install git
+            </code></pre>
+          </section>
+          <section>
+            <h3>Práce s lokálním repozitářem</h3>
+            <img src="git_add_commit.png"></img>
+            <pre><code data-trim data-noescape>
+              git init    # v aktuálním adresáři založí repozitář
+              git add .   # přidá všechny soubory do staging
+              git commit -m "msg" # uloží staging do lokálního repozitáře
+            </code></pre>
+          </section>
+          <section>
+            <h3>Práce se vzdáleným repozitářem</h3>
+            <pre><code data-trim class="language-bash">
+              git clone https://...   # klonuje vzdálený repozitář
+              git push    # odešle lokální repozitář do vzdáleného
+              git fetch   # stáhne metadata ze vzdáleného repo
+              git pull    # synchronizuje soubory ze vzdáleného
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <h3>Pojďme do toho!</h3>
+          <pre><code data-trim class="language-bash">
+            git clone ssh://git@192.168.x.y/workshop.git
+            cd workshop   # vstoupit do adresáře
+            ls / dir      # vypsat obsah adresáře
+            git pull      # synchronizace ze vzdáleného repo
+
+            # nastavení základní identifikace uživatele
+            git config --global user.name "miroslavh"
+            git config --global user.email miroslavh@test.local
+          </code></pre>
+        </section>
+        <section>
+          <section>
+            <h3>Jak je to s branch?</h3>
+            <ul>
+              <li>branch se používá pro reálnou práci na kódu, aniž by docházelo ke konfliktům s ostatními vývojáři</li>
+              <li>branch žije vlastním životem</li>
+              <li>jedná se o pointer na některý commit</li>
+            </ul>
+          </section>
+          <section>
+            <img src="git_workflow.png" />
+            <a href="https://opencoursehub.cs.sfu.ca/bfraser/grav-cms/cmpt276/notes/git_workshop/GitWorkshop.pdf">source</a>
+          </section>
+          <section>
+            <h3>Nový branch</h3>
+            <pre><code data-trim class="language-bash">
+              # vytvoří lokálně nový branch
+              git checkout -b feature/miroslavh/RTCD-3 
+
+              # vytvoří soubor miroslavh.txt
+              echo "TEST" > miroslavh.txt
+              git status  # rozdíl adresáře vs lokální repo
+              git diff    # detial rozdílů
+              git add miroslavh.txt   # přesune soubor do stage
+
+              # commit do lokálního repo
+              git commit -m "RTCD-3: new commit"
+              git push                # upload branch do vzdáleného repo
+              git pull # synchronizujte si master ze vzdáleného repo
+            </code></pre>
+          </section>
+          <section>
+            <h3>Spojení branch</h3>
+            <pre><code data-trim class="language-bash">
+              git branch  # ukáže všechny lokální branch
+
+              # merge se provádí tak, že je třeba změnit branch do kterého budeme slučovat
+              git switch master
+
+              # poté se provede merge
+              git merge feature/miroslavh/RTCD-3
+
+              # alternativou je rebase, který se naopak provádí z nového branch
+              git rebase master
+            </code></pre>
+          </section>
+          <section>
+            <h3>Log</h3>
+            <pre><code data-trim class="language-bash">
+              git log   # přehled provedených commitů
+              git reset --hard # provede návrat k předchozímu commitu
+              
+              # vytvořme nový soubor
+              git switch feature/miroslavh/RTCD-3
+              echo "TEST" > miroslavh2.txt
+              git add . && git commit -m "add file"
+            </code></pre>
+          </section>
+          <section>
+            <h3>Checkout</h3>
+            <pre><code data-trim class="language-bash">
+              # upravte obsah souboru miroslavh.txt
+              echo "TEST2" >> miroslavh2.txt
+
+              # v případě, že potřebujete obnovit předchozí stav souboru
+              git checkout miroslavh2.txt
+            </code></pre>
+          </section>
+          <section>
+            <h3>Přechod mezi branch</h3>
+            <ul>
+              <li>provádí se pomocí 
+                <code>
+                  git switch / git checkout
+                </code></li>
+              <li>je-li nějaká změna v aktuálním adresáři, převede se změna společně při přechodu na nový branch</li>
+              <li>existuje-li však konflikt mezi branch, akce selže a je třeba provést commit nebo stash, který uloží změny ale adresář vrátí do původního stavu</li>
+                <code>git stash</code>
+            </ul>
+          </section>
+          <section>
+            <h3>Merge conflict</h3>
+            <pre><code data-trim class="language-bash">
+              # upravte obsah souboru test.txt
+              echo "TEST2" >> test.txt
+              git add . && git commit -m "update" && git push
+              git switch master
+              git merge feature/miroslavh/RTCD-3
+            </code></pre>
+          </section>
+          <section>
+            <h3>Merge conflict</h3>
+            <pre><code data-trim class="language-bash">
+            DOPLNIT
+            </code></pre>
+          </section>
+          <section>
+            <h3>Specialitky</h3>
+            <pre><code data-trim class="language-bash">
+              git stash list  # prehled stash změn
+              git stash apply # aplikace stash
+              git cherry-pick hash  # aplikace commitu z jiného branch
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <h3>Nástroje pro vizualizaci branch</h3>
+          <ul>
+            <li>gitkraken</li>
+            <li>qgit</li>
+            <li>tig</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Doporučení</h3>
+          <ul>
+            <li>smysluplné commit message umožňují rychlou orientaci</li>
+            <li>zahrnujte pouze zdrojový kód nikoliv kompilované binárky/knihovny</li>
+            <li>nastavení v .gitignore</li>
+            <li>NIKDY neuchovávejte plaintextová hesla (Vault, sops, ...)</li>
+            <li>dokumentaci mějte v README.md</li>
+          </ul>
+        </section>
+        <section>
+          <section>
+            <h3>Git hooks</h3>
+            <ul>
+              <li>jsou shell skritpy, které jsou spouštěné při nějaké akci s gitem</li>
+              <li>client side (pre-commit, pre-push, post-merge</li>
+              <li>jejich pozitiva, přebírá hlavně CI</li>
+              <li>server side (update, pre-receive)</li>
+              <li>pro uživatele nejsou zajímavé</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Git pre-commit</h3>
+            <pre><code data-trim class="language-bash">
+            DOPLNIT
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <h3>Centrální git repo</h3>
+          <ul>
+            <li>je zcela nezbytný a spolehlivý</li>
+            <li>on premise <code>git init --bare</code></li>
+            <li>cloud poskytovatelé</li>
+            <ul>
+              <li><a href="https://github.com">GitHub</a></li>
+              <li><a href="https://bitbucket.org">Bitbucket</a></li>
+              <li><a href="https://sourceforge.net">Sourceforge</a></li>
+            </ul>
+          </ul>
+        </section>
+        <section>
+          <h3>Zdroje</h3>
+          <ul>
+            <li><a href="https://www.atlassian.com/git/tutorials">Atlassian Tutorial</a></li>
+            <li><a href="https://git-scm.com/doc">GIT-SCM</a></li>
+          </ul>
+        </section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
