@@ -187,6 +187,10 @@
               git cherry-pick hash  # aplikace commitu z jiného branch
             </code></pre>
           </section>
+          <section>
+            <h3>Cherry-pick</h3>
+            <img src="git_cherry-pick.png" />
+          </section>
         </section>
         <section>
           <h3>Nástroje pro vizualizaci branch</h3>
@@ -222,6 +226,7 @@
             <h3>Git pre-commit</h3>
             <ul>
               <li>změňte hodnotu testu z 21 na 10</li>
+              <li>nakopírujte pre-commit do <code>.git/hook</code> a nastavte spustitelný flag</li>
             </ul>
             <pre><code data-trim class="language-python" data-line-numbers="10">
               import unittest
@@ -235,9 +240,10 @@
                       self.assertGreater(generate_num(), 9)
                       self.assertLess(generate_num(),21)
             </code></pre>
-            <ul>
-              <li>nakopírujte pre-commit do <code>.git/hook</code> a nastavte spustitelný flag</li>
-            </ul>
+            <pre><code data-trim class="language-python">
+              cp pre-commit .git/hook
+              chmod 755 .git/hook/pre-commit
+            </code></pre>
           </section>
           <section>
             <h3>Git pre-commit failed pre-commit hook</h3>
